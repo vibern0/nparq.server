@@ -22,6 +22,7 @@ public class NparqServer {
     public static void main(String[] args)
     {
         ConnectionUDP connection = null;
+        MyDatabase mdb = new MyDatabase();
         try
         {
             connection = new ConnectionUDP(5600);
