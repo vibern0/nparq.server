@@ -1,14 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package nparq.server;
 
-import com.mongodb.BasicDBList;
 import com.mongodb.Block;
+import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import static com.mongodb.client.model.Filters.and;
@@ -18,17 +12,10 @@ import static com.mongodb.client.model.Filters.gte;
 import static com.mongodb.client.model.Updates.inc;
 import java.util.ArrayList;
 import org.bson.Document;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Set;
-import org.bson.BsonArray;
 import org.bson.conversions.Bson;
 import org.json.simple.JSONObject;
 
-/**
- *
- * @author bernardovieira
- */
 public class MyDatabase
 {
     private MongoClient mongo;
@@ -41,27 +28,10 @@ public class MyDatabase
     {
         try
         {
-            // To connect to mongodb server
             mongo = new MongoClient("localhost", 27017);
-
-            // Now connect to your databases
+            
             database = mongo.getDatabase(DATABASE_NAME);
             collection = database.getCollection(COLLECTION_NAME);
-            
-            /*Document doc = new Document("name", "MongoDB")
-                .append("type", "database")
-                .append("count", 1)
-                .append("versions", Arrays.asList("v3.2", "v3.0", "v2.6"))
-                .append("info", new Document("x", 203).append("y", 102));
-            
-            collection.insertOne(doc);*/
-            
-            /*Document myDoc = collection.find(exists("name")).first();
-            System.out.println(myDoc.toJson());*/
-            
-            /*Document myDoc = collection.find().first();
-            System.out.println(myDoc.toJson());*/
-            
         }
         catch(Exception e)
         {
@@ -69,17 +39,20 @@ public class MyDatabase
         }
     }
     
+    public boolean find(String place_name)
+    {
+        Document doc = collection.find(eq("name", place_name)).first();
+        return (doc != null);
+    }
+    
     public ArrayList<JSONObject> search(String city_name, ArrayList<String> wants)
     {
         ArrayList<JSONObject> search_result = new ArrayList<>();
-        //
-        
         Block<Document> printBlock = new Block<Document>()
         {
             @Override
             public void apply(final Document document)
             {
-                System.out.println(document.toJson());
                 search_result.add(new JSONObject(document));
             }
         };
@@ -95,10 +68,7 @@ public class MyDatabase
             }
         }
         
-        
         collection.find(and(ibson)).forEach(printBlock);
-        
-        //
         return search_result;
     }
     
@@ -113,6 +83,7 @@ public class MyDatabase
             .append("name", obj.get("name"))
             .append("photo", "no_photo")
             .append("contains", obj.get("contains"))
+            .append("validated", false)
             .append("votes", 0)
             .append("up_votes", 0)
             .append("down_votes", 0);

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package nparq.server;
 
 import java.io.IOException;
@@ -13,18 +8,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONObject;
 
-/**
- *
- * @author bernardovieira
- */
-public class NparqServer {
-
-    /**
-     * @param args the command line arguments
-     */
+public class NparqServer
+{
     public static void main(String[] args)
     {
         ConnectionUDP connection = null;
+        
+        
+        //
+        
         MyDatabase database = new MyDatabase();
         
         /*JSONObject json = new JSONObject();
@@ -60,6 +52,10 @@ public class NparqServer {
         {
             System.out.println(e.toJSONString());
         }
+        
+        //
+        
+        
         
         try
         {
