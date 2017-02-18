@@ -7,6 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Calendar;
 
 public class TransferImages
 {
@@ -28,9 +31,14 @@ public class TransferImages
     
     public void download() throws IOException
     {
+        Calendar calendar = Calendar.getInstance();
+        java.util.Date now = calendar.getTime();
+        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
+        long tmm = (long)currentTimestamp.getTime();
+        //
         Socket socket = ss.accept();
         InputStream in = socket.getInputStream();
-        OutputStream out = new FileOutputStream("recv.jpg");
+        OutputStream out = new FileOutputStream(tmm + ".jpg");
         copy(in, out);
         out.close();
         in.close();

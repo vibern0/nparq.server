@@ -42,6 +42,7 @@ public class ConnectionUDP
             try
             {
                 JSONObject json = (JSONObject) parser.parse(input_sock);
+                System.out.println(json.get("type"));
                 if(json.get("type").equals("search"))
                 {
                     ArrayList<String> wants = (ArrayList<String>) json.get("wants");
