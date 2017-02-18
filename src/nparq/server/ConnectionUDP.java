@@ -10,7 +10,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -20,9 +25,11 @@ public class ConnectionUDP
 {    
     public static final int MAX_DPACK_SIZE = 256;
     private final DatagramSocket socket;
+    private MyDatabase database;
     
     public ConnectionUDP(int listeningPort) throws SocketException, IOException
     {
+        database = new MyDatabase();
         socket = new DatagramSocket(listeningPort);
         DatagramPacket packet = new DatagramPacket(new byte[MAX_DPACK_SIZE], MAX_DPACK_SIZE);
         DatagramPacket packet_send;
@@ -38,17 +45,29 @@ public class ConnectionUDP
             host_adress = packet.getAddress().getHostAddress();
             host_port = packet.getPort();
             
-            if(input_sock.equals("search"))
+            JSONParser parser = new JSONParser();
+            try
             {
-                JSONObject obj = new JSONObject();
-                obj.put("name", "foo");
-                obj.put("location", "bar");
-                //
-                packet_send = new DatagramPacket(
-                        obj.toString().getBytes(), obj.toString().length(),
-                        InetAddress.getByName(host_adress), host_port);
-                socket.send(packet_send);
+                JSONObject json = (JSONObject) parser.parse(input_sock);
+                if(json.get("type").equals("search"))
+                {
+                    ArrayList<String> wants = (ArrayList<String>) json.get("wants");
+                    ArrayList<JSONObject> wres =
+                            database.search((String)json.get("city_name"), wants);
+                    //
+
+                    packet_send = new DatagramPacket(
+                            wres.toString().getBytes(), wres.toString().length(),
+                            InetAddress.getByName(host_adress), host_port);
+                    socket.send(packet_send);
+                }
             }
+            catch (ParseException ex)
+            {
+                Logger.getLogger(ConnectionUDP.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            
             
         } while(true);
     }

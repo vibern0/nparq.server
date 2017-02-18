@@ -7,8 +7,11 @@ package nparq.server;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.simple.JSONObject;
 
 /**
  *
@@ -22,7 +25,42 @@ public class NparqServer {
     public static void main(String[] args)
     {
         ConnectionUDP connection = null;
-        MyDatabase mdb = new MyDatabase();
+        MyDatabase database = new MyDatabase();
+        
+        /*JSONObject json = new JSONObject();
+        json.put("city", "Coimbra");
+        json.put("name", "Choupal");
+        ArrayList<String> jcontains = new ArrayList<>();
+        jcontains.add("wc");
+        jcontains.add("parquelanche");
+        jcontains.add("calmo");
+        jcontains.add("rio");
+        json.put("contains", jcontains);
+        
+        database.add(json);*/
+        
+        ArrayList<String> arr = new ArrayList<>();
+        arr.add("wc");
+        ArrayList<JSONObject> marr = database.search("Coimbra", null);
+        
+        
+        /*java.util.Date today = new java.util.Date();
+        java.sql.Timestamp timee = new java.sql.Timestamp(today.getTime());
+        System.out.println(timee.getTime());
+        
+        System.out.println(((java.util.Date)marr.get(0).get("ref")).getTime());*/
+        
+        System.out.println((long)marr.get(0).get("ref"));
+        
+        /*database.vote((long)marr.get(0).get("ref"), true);
+        database.vote((long)marr.get(0).get("ref"), true);
+        database.vote((long)marr.get(0).get("ref"), false);*/
+        
+        for(JSONObject e : marr)
+        {
+            System.out.println(e.toJSONString());
+        }
+        
         try
         {
             connection = new ConnectionUDP(5600);
