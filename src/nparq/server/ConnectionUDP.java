@@ -8,6 +8,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -46,12 +47,14 @@ public class ConnectionUDP
                 if(json.get("type").equals("search"))
                 {
                     ArrayList<String> wants = (ArrayList<String>) json.get("wants");
-                    ArrayList<JSONObject> wres =
-                            database.search((String)json.get("city_name"), wants);
+                    ArrayList<String> nwants = (ArrayList<String>) json.get("nwants");
+                    JSONArray wres =
+                            database.search((String)json.get("city_name"),
+                                    wants, nwants);
                     //
 
                     packet_send = new DatagramPacket(
-                            wres.toString().getBytes(), wres.toString().length(),
+                            wres.toJSONString().getBytes(), wres.toJSONString().length(),
                             InetAddress.getByName(host_adress), host_port);
                     socket.send(packet_send);
                 }
@@ -86,6 +89,10 @@ public class ConnectionUDP
                         njson.put("contains", json.get("contains"));
                     }
                     //
+                }
+                else if(json.get("type").equals("pnew"))
+                {
+                    transfer.download();
                 }
                 else if(json.get("type").equals("vote"))
                 {

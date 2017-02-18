@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import org.bson.Document;
 import java.util.Calendar;
 import org.bson.conversions.Bson;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 public class MyDatabase
@@ -21,7 +22,7 @@ public class MyDatabase
     private MongoClient mongo;
     private MongoDatabase database;
     private MongoCollection<Document> collection;
-    private static final String DATABASE_NAME = "nparq2";
+    private static final String DATABASE_NAME = "nparq3";
     private static final String COLLECTION_NAME = "shift";
             
     public MyDatabase()
@@ -45,15 +46,16 @@ public class MyDatabase
         return (doc != null);
     }
     
-    public ArrayList<JSONObject> search(String city_name, ArrayList<String> wants)
+    public JSONArray search(String city_name,
+            ArrayList<String> wants, ArrayList<String> nwants)
     {
-        ArrayList<JSONObject> search_result = new ArrayList<>();
+        JSONArray json_array = new JSONArray();
         Block<Document> printBlock = new Block<Document>()
         {
             @Override
             public void apply(final Document document)
             {
-                search_result.add(new JSONObject(document));
+                json_array.add(document);
             }
         };
         
@@ -67,9 +69,16 @@ public class MyDatabase
                 ibson.add(exists(want));
             }
         }
+        if(nwants != null)
+        {
+            for(String nwant : nwants)
+            {
+                ibson.add(exists(nwant, false));
+            }
+        }
         
         collection.find(and(ibson)).forEach(printBlock);
-        return search_result;
+        return json_array;
     }
     
     public void add(JSONObject obj)
@@ -81,6 +90,8 @@ public class MyDatabase
         Document doc = new Document("ref", (long)currentTimestamp.getTime())
             .append("city", obj.get("city"))
             .append("name", obj.get("name"))
+            .append("lat", obj.get("lat"))
+            .append("long", obj.get("long"))
             .append("photo", "no_photo")
             .append("contains", obj.get("contains"))
             .append("validated", false)
