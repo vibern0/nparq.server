@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package nparq.server;
 
 import java.io.IOException;
@@ -17,10 +12,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-/**
- *
- * @author bernardovieira
- */
 public class ConnectionUDP
 {    
     public static final int MAX_DPACK_SIZE = 256;
@@ -61,13 +52,29 @@ public class ConnectionUDP
                             InetAddress.getByName(host_adress), host_port);
                     socket.send(packet_send);
                 }
+                else if(json.get("type").equals("new"))
+                {
+                    String name = (String) json.get("name");
+                    ArrayList arr = (ArrayList) json.get("contains");
+                    if(!database.find(name))
+                    {
+                        JSONObject njson = new JSONObject();
+                        njson.put("city", json.get("city"));
+                        njson.put("name", json.get("name"));
+                        njson.put("contains", json.get("contains"));
+                    }
+                    //
+                }
+                else if(json.get("type").equals("vote"))
+                {
+                    long ref = (long) json.get("ref");
+                    database.vote(ref, (boolean)json.get("vote"));
+                }
             }
             catch (ParseException ex)
             {
                 Logger.getLogger(ConnectionUDP.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            
             
         } while(true);
     }
