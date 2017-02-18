@@ -17,9 +17,11 @@ public class ConnectionUDP
     public static final int MAX_DPACK_SIZE = 256;
     private final DatagramSocket socket;
     private MyDatabase database;
+    TransferImages transfer;
     
     public ConnectionUDP(int listeningPort) throws SocketException, IOException
     {
+        transfer = new TransferImages();
         database = new MyDatabase();
         socket = new DatagramSocket(listeningPort);
         DatagramPacket packet = new DatagramPacket(new byte[MAX_DPACK_SIZE], MAX_DPACK_SIZE);
@@ -51,6 +53,25 @@ public class ConnectionUDP
                             wres.toString().getBytes(), wres.toString().length(),
                             InetAddress.getByName(host_adress), host_port);
                     socket.send(packet_send);
+                }
+                else if(json.get("type").equals("see"))
+                {
+                    new Thread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            try
+                            {
+                                transfer.upload("img.jpg");
+                            }
+                            catch (IOException ex)
+                            {
+                                Logger.getLogger(ConnectionUDP.class.getName()).
+                                        log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    }).start();
                 }
                 else if(json.get("type").equals("new"))
                 {
