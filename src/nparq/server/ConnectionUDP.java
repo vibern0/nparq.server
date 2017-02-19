@@ -47,7 +47,7 @@ public class ConnectionUDP
                 System.out.println(json.get("type"));
                 if(json.get("type").equals("search"))
                 {
-                    System.out.println("search");
+                    System.out.println("SEARCH" + input_sock);
                     ArrayList<String> wants = (ArrayList<String>) json.get("wants");
                     ArrayList<String> nwants = (ArrayList<String>) json.get("nwants");
                     JSONArray wres =
@@ -78,14 +78,22 @@ public class ConnectionUDP
                                 packet_send = new DatagramPacket(
                                         doc.toJson().getBytes(), doc.toJson().length(),
                                         InetAddress.getByName(h_adress), h_port);
-                                System.out.println(doc.toJson());
+                                System.out.println("abc" + doc.toJson());
                                 socket.send(packet_send);
-                                transfer.upload("img2.jpg");
+                                System.out.println("a");
+                                
+                                JSONParser iparser = new JSONParser();
+                                JSONObject ijson = (JSONObject) iparser.parse(doc.toJson());
+                                
+                                transfer.upload((String)ijson.get("photo"));
+                                System.out.println("b " + (String)ijson.get("photo"));
                             }
                             catch (IOException ex)
                             {
                                 Logger.getLogger(ConnectionUDP.class.getName()).
                                         log(Level.SEVERE, null, ex);
+                            } catch (ParseException ex) {
+                                Logger.getLogger(ConnectionUDP.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
                     }).start();
@@ -93,20 +101,27 @@ public class ConnectionUDP
                 else if(json.get("type").equals("new"))
                 {
                     String name = (String) json.get("name");
-                    ArrayList arr = (ArrayList) json.get("contains");
+                    ArrayList<String> arr = (ArrayList<String>) json.get("contains");
                     if(!database.find(name))
                     {
+                        long tmm = transfer.download();
+                        
                         JSONObject njson = new JSONObject();
                         njson.put("city", json.get("city"));
                         njson.put("name", json.get("name"));
-                        njson.put("contains", json.get("contains"));
+                        njson.put("photo", tmm + ".jpg");
+                        njson.put("lat", json.get("lat"));
+                        njson.put("long", json.get("long"));
+                        njson.put("contains", arr);
+                        database.add(njson);
+                        System.out.println("Novo local!" + name);
                     }
                     //
                 }
-                else if(json.get("type").equals("pnew"))
+                /*else if(json.get("type").equals("pnew"))
                 {
                     transfer.download();
-                }
+                }*/
                 else if(json.get("type").equals("vote"))
                 {
                     long ref = (long) json.get("ref");

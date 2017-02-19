@@ -10,6 +10,8 @@ import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
 import static com.mongodb.client.model.Filters.gte;
 import static com.mongodb.client.model.Updates.inc;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.nin;
 import java.util.ArrayList;
 import org.bson.Document;
 import java.util.Calendar;
@@ -26,7 +28,7 @@ public class MyDatabase
     private MongoClient mongo;
     private MongoDatabase database;
     private MongoCollection<Document> collection;
-    private static final String DATABASE_NAME = "nparq5";
+    private static final String DATABASE_NAME = "nparq9";
     private static final String COLLECTION_NAME = "shift";
             
     public MyDatabase()
@@ -78,6 +80,7 @@ public class MyDatabase
                     JSONObject hjson;
                     hjson = (JSONObject) parser.parse(document.toJson());
                     System.out.println(((JSONObject)hjson.get("ref")).get("$numberLong"));*/
+                    System.out.println("ON-SEARCH" + document);
                 }
                 catch (ParseException ex) { }
             }
@@ -90,14 +93,14 @@ public class MyDatabase
         {
             for(String want : wants)
             {
-                ibson.add(exists(want));
+                ibson.add(in("contains", want));
             }
         }
         if(nwants != null)
         {
             for(String nwant : nwants)
             {
-                ibson.add(exists(nwant, false));
+                ibson.add(nin("contains", nwant));
             }
         }
         
@@ -116,7 +119,7 @@ public class MyDatabase
             .append("name", obj.get("name"))
             .append("lat", (double)obj.get("lat"))
             .append("long", (double)obj.get("long"))
-            .append("photo", "no_photo")
+            .append("photo", obj.get("photo"))
             .append("contains", (ArrayList<String>)obj.get("contains"))
             .append("validated", false)
             .append("votes", 0)

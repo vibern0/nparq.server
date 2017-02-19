@@ -29,7 +29,7 @@ public class TransferImages
         in.close();
     }
     
-    public void download() throws IOException
+    public long download() throws IOException
     {
         Calendar calendar = Calendar.getInstance();
         java.util.Date now = calendar.getTime();
@@ -42,6 +42,8 @@ public class TransferImages
         copy(in, out);
         out.close();
         in.close();
+        
+        return tmm;
     }
  
     private void copy(InputStream in, OutputStream out) throws IOException
