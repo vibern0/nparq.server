@@ -13,16 +13,20 @@ import static com.mongodb.client.model.Updates.inc;
 import java.util.ArrayList;
 import org.bson.Document;
 import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bson.conversions.Bson;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class MyDatabase
 {
     private MongoClient mongo;
     private MongoDatabase database;
     private MongoCollection<Document> collection;
-    private static final String DATABASE_NAME = "nparq3";
+    private static final String DATABASE_NAME = "nparq5";
     private static final String COLLECTION_NAME = "shift";
             
     public MyDatabase()
@@ -46,6 +50,11 @@ public class MyDatabase
         return (doc != null);
     }
     
+    public Document find(long ref)
+    {
+        return collection.find(eq("ref", ref)).first();
+    }
+    
     public JSONArray search(String city_name,
             ArrayList<String> wants, ArrayList<String> nwants)
     {
@@ -55,7 +64,22 @@ public class MyDatabase
             @Override
             public void apply(final Document document)
             {
-                json_array.add(document);
+                try
+                {
+                    String jsons = document.toJson();
+                    JSONParser parser = new JSONParser();
+                    JSONObject json;
+                    json = (JSONObject) parser.parse(jsons);
+                    json_array.add(json);
+                    
+                    /*
+                    
+                    JSONParser hparser = new JSONParser();
+                    JSONObject hjson;
+                    hjson = (JSONObject) parser.parse(document.toJson());
+                    System.out.println(((JSONObject)hjson.get("ref")).get("$numberLong"));*/
+                }
+                catch (ParseException ex) { }
             }
         };
         
@@ -90,10 +114,10 @@ public class MyDatabase
         Document doc = new Document("ref", (long)currentTimestamp.getTime())
             .append("city", obj.get("city"))
             .append("name", obj.get("name"))
-            .append("lat", obj.get("lat"))
-            .append("long", obj.get("long"))
+            .append("lat", (double)obj.get("lat"))
+            .append("long", (double)obj.get("long"))
             .append("photo", "no_photo")
-            .append("contains", obj.get("contains"))
+            .append("contains", (ArrayList<String>)obj.get("contains"))
             .append("validated", false)
             .append("votes", 0)
             .append("up_votes", 0)

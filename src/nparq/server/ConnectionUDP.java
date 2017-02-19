@@ -8,6 +8,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bson.Document;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -15,7 +16,7 @@ import org.json.simple.parser.ParseException;
 
 public class ConnectionUDP
 {    
-    public static final int MAX_DPACK_SIZE = 256;
+    public static final int MAX_DPACK_SIZE = 1024;
     private final DatagramSocket socket;
     private MyDatabase database;
     TransferImages transfer;
@@ -46,6 +47,7 @@ public class ConnectionUDP
                 System.out.println(json.get("type"));
                 if(json.get("type").equals("search"))
                 {
+                    System.out.println("search");
                     ArrayList<String> wants = (ArrayList<String>) json.get("wants");
                     ArrayList<String> nwants = (ArrayList<String>) json.get("nwants");
                     JSONArray wres =
@@ -57,9 +59,13 @@ public class ConnectionUDP
                             wres.toJSONString().getBytes(), wres.toJSONString().length(),
                             InetAddress.getByName(host_adress), host_port);
                     socket.send(packet_send);
+                    System.out.println(wres.toJSONString());
+                    System.out.println("search-done");
                 }
                 else if(json.get("type").equals("see"))
                 {
+                    final String h_adress = host_adress;
+                    final int h_port = host_port;
                     new Thread(new Runnable()
                     {
                         @Override
@@ -67,7 +73,14 @@ public class ConnectionUDP
                         {
                             try
                             {
-                                transfer.upload("img.jpg");
+                                DatagramPacket packet_send;
+                                Document doc = database.find((long)json.get("ref"));
+                                packet_send = new DatagramPacket(
+                                        doc.toJson().getBytes(), doc.toJson().length(),
+                                        InetAddress.getByName(h_adress), h_port);
+                                System.out.println(doc.toJson());
+                                socket.send(packet_send);
+                                transfer.upload("img2.jpg");
                             }
                             catch (IOException ex)
                             {
