@@ -3,9 +3,9 @@ package nparq.server;
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bson.Document;
 import org.json.simple.JSONObject;
 
 public class NparqServer
@@ -14,48 +14,38 @@ public class NparqServer
     {
         ConnectionUDP connection = null;
         
-        
         //
         
-        MyDatabase database = new MyDatabase();
-        
-        /*JSONObject json = new JSONObject();
-        json.put("city", "Coimbra");
-        json.put("name", "Choupal");
-        ArrayList<String> jcontains = new ArrayList<>();
-        jcontains.add("wc");
-        jcontains.add("parquelanche");
-        jcontains.add("calmo");
-        jcontains.add("rio");
-        json.put("contains", jcontains);
-        
-        database.add(json);*/
-        
+        MyDatabase mdata = new MyDatabase();
+        /*JSONObject obj = new JSONObject();
+        obj.put("city", "Lisboa");
+        obj.put("name", "Jardim Quinta da paz");
+        obj.put("lat", 38.770446);
+        obj.put("long", -9.175640);
+        obj.put("photo", "no_photo");
         ArrayList<String> arr = new ArrayList<>();
+        arr.add("lago");
+        arr.add("calmo");
+        obj.put("contains", arr);
+        mdata.add(obj);
+        
+        
+        //MyDatabase mdata = new MyDatabase();
+        obj = new JSONObject();
+        obj.put("city", "Coimbra");
+        obj.put("name", "Choupal");
+        obj.put("lat", 40.222254);
+        obj.put("long", -8.443894);
+        obj.put("photo", "no_photo");
+        arr = new ArrayList<>();
         arr.add("wc");
-        ArrayList<JSONObject> marr = database.search("Coimbra", null);
+        obj.put("contains", arr);
+        mdata.add(obj);*/
         
+        mdata.search("Coimbra", null, null);
         
-        /*java.util.Date today = new java.util.Date();
-        java.sql.Timestamp timee = new java.sql.Timestamp(today.getTime());
-        System.out.println(timee.getTime());
-        
-        System.out.println(((java.util.Date)marr.get(0).get("ref")).getTime());*/
-        
-        System.out.println((long)marr.get(0).get("ref"));
-        
-        /*database.vote((long)marr.get(0).get("ref"), true);
-        database.vote((long)marr.get(0).get("ref"), true);
-        database.vote((long)marr.get(0).get("ref"), false);*/
-        
-        for(JSONObject e : marr)
-        {
-            System.out.println(e.toJSONString());
-        }
         
         //
-        
-        
         
         try
         {
